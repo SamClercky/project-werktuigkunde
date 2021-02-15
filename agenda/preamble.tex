@@ -1,0 +1,39 @@
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{physics}
+
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[normalem]{ulem}
+
+\usepackage{parskip}
+\usepackage{array}
+
+\newcommand{\incfig}[2][1]{%
+    \def\svgwidth{#1\columnwidth}
+    \import{./figures/}{#2.pdf_tex}
+}
+
+\pdfsuppresswarningpagegroup=1
+
+\newcommand*{\Z}{\mathbb{Z}}
+\newcommand*{\N}{\mathbb{N}}
+\newcommand*{\R}{\mathbb{R}}
+\newcommand*{\C}{\mathbb{C}}
+\newcommand*{\Q}{\mathbb{Q}}
+
+\newcommand*{\qed}{\null\nobreak\hfill\ensuremath{\square}}%
+\newcommand*{\Bewijs}{ \textbf{Bewijs: }}
+\newcommand*{\evaluate}{\bigg\rvert}
+\newcommand*{\Doel}{\textbf{Doel: }}
+\newcommand*{\Methode}{\textbf{Methode: }}
+\newcommand*{\Opm}{\textbf{Opm: }}
+\newcommand*{\so}{$\to$\ }
+\newcommand*{\Def}{\textbf{Definitie: }}
+\newcommand*{\Form}{ \textbf{Formule: } }
+\newcommand*{\TODO}{\textbf{TODO: }}
+\newcommand*{\Gevolg}{\textbf{Gevolg: }}
