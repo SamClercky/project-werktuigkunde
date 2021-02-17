@@ -5,6 +5,7 @@
 // Toevoegen van sensors
 #include <EVs_EV3Ultrasonic.h>
 #include <EVs_EV3Color.h>
+#include <EVs_NXTTouch.h>
 
 // init shield
 EVShield evshield(0x34, 0x36);
@@ -12,9 +13,13 @@ EVShield evshield(0x34, 0x36);
 // init sensors
 EVs_EV3Ultrasonic ultrasonic_sensor;
 EVs_EV3Color color_sensor;
+EVs_NXTTouch touch_sensor;
 
 int currentSensor = 0;
-int maxSensor = 2;
+constexpr int maxSensor = 3;
+
+constexpr long delayTime = 500;
+long nexTime = 0;
 
 void setup() {
 	// setup serial comm (aka logging)
@@ -33,6 +38,8 @@ void setup() {
 	color_sensor.init(&evshield, SH_BAS1);
 	color_sensor.setMode(MODE_Color_MeasureColor);
 
+	touch_sensor.init(&evshield, SH_BBS1);
+
 	// END initialize hardware
 	
 	Serial.println("Init hardware succeeded");
@@ -45,14 +52,27 @@ void setup() {
 void loop() {
 	switch ( currentSensor ) {
 		case 0:
-			Serial.print("Ultrasoon: ");
-			Serial.print(ultrasonic_sensor.getDist());
-			Serial.println("cm");
+			if (nexTime < millis()) {
+				Serial.print("Ultrasoon: ");
+				Serial.print(ultrasonic_sensor.getDist());
+				Serial.println("cm");
+
+				nexTime = millis() + delayTime;
+			}
 			break;
 		case 1:
-			Serial.print("Colorsensor: ");
-			Serial.print(getColor(color_sensor.getVal()));
-			Serial.println();
+			if (nexTime < millis()) {
+				Serial.print("Colorsensor: ");
+				Serial.print(getColor(color_sensor.getVal()));
+				Serial.println();
+
+				nexTime = millis() + delayTime;
+			}
+			break;
+		case 2:
+			if (touch_sensor.isPressed()) {
+				Serial.println("Touched registered");
+			}
 			break;
 	}
 
@@ -63,8 +83,6 @@ void loop() {
 	if (evshield.getButtonState(BTN_RIGHT)) {
 		currentSensor = (currentSensor + maxSensor - 1) % maxSensor;
 	}
-
-	delay(500);
 }
 
 char* getColor(float sensorData) {
