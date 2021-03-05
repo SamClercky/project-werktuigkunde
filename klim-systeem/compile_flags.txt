@@ -1,0 +1,5 @@
+-xc++
+-I
+/usr/share/arduino/libraries/EVShield
+-I
+/usr/share/arduino/hardware/archlinux-arduino/avr/libraries

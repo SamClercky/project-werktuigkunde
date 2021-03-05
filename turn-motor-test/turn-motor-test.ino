@@ -28,9 +28,6 @@ constexpr int FINAL = 1;
 long lastPressed1 = 0;
 long lastPressed2 = 0;
 
-int lastColor1 = -1; // manier om ruis te filteren
-int lastColor2 = -1; // manier om ruis te filteren
-
 void sendCommandToMotor(int motor, int speed) {
 	evshield.bank_b.motorRunUnlimited(motor,
 			speed < 0 ? SH_Direction_Forward : SH_Direction_Reverse,
@@ -91,42 +88,26 @@ void loop() {
 		int color2 = color_sensor2.getVal();
 
 		if (color1 == LIJN) {
-			if (lastColor1 == LIJN) { // Als geen ruis
-				// Start logica
-				sendCommandToMotor(SH_Motor_1, baseDuty - accelDuty);
-				sendCommandToMotor(SH_Motor_2, baseDuty + accelDuty);
-				Serial.println("LIJN 1");
-				delay(300);
-			}
-
-			// update mogelijke ruis filter
-			lastColor1 = LIJN;
+			// Start logica
+			sendCommandToMotor(SH_Motor_1, baseDuty - accelDuty);
+			sendCommandToMotor(SH_Motor_2, baseDuty + accelDuty);
+			Serial.println("LIJN 1");
+			delay(300);
 		}
 
 		if (color2 == LIJN) {
-			if (lastColor2 == LIJN) { // Als geen ruis
-				// Start logica
-				sendCommandToMotor(SH_Motor_1, baseDuty + accelDuty);
-				sendCommandToMotor(SH_Motor_2, baseDuty - accelDuty);
-				Serial.println("LIJN 2");
-				delay(300);
-			}
-
-			// update mogelijke ruis filter
-			lastColor2 = LIJN;
+			// Start logica
+			sendCommandToMotor(SH_Motor_1, baseDuty + accelDuty);
+			sendCommandToMotor(SH_Motor_2, baseDuty - accelDuty);
+			Serial.println("LIJN 2");
+			delay(300);
 		}
 
 		if (color1 != LIJN && color2 != LIJN) {
-			if (lastColor1 != LIJN && lastColor2 != LIJN) { // Als geen ruis
-				// Start logica
-				sendCommandToMotor(SH_Motor_1, baseDuty);
-				sendCommandToMotor(SH_Motor_2, baseDuty);
-				Serial.println("GEEN LIJN");
-			}
-
-			// update mogelijke ruis filter
-			lastColor1 = -1;
-			lastColor2 = -1;
+			// Start logica
+			sendCommandToMotor(SH_Motor_1, baseDuty);
+			sendCommandToMotor(SH_Motor_2, baseDuty);
+			Serial.println("GEEN LIJN");
 		}
 
 		Serial.print("Kleur gedetecteerd: ");
