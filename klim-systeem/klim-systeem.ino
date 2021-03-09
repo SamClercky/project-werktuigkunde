@@ -47,7 +47,7 @@ void setup() {
 
 	ultrasonic.init(&evshield, SH_BAS1);
 	ultrasonic.setMode(MODE_Sonar_CM);
-	evshield.bank_b.motorReset();
+	evshield.bank_a.motorReset();
 
 	// END initialize hardware
 	
