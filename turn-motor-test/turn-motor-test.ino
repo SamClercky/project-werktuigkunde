@@ -1,3 +1,14 @@
+/******************************
+* Motor 1 -> bank B M1
+* Motor 2 -> bank B M2
+* Color 1 -> bank A S1
+* Color 2 -> bank A S2
+* Btn   1 -> bank B S1
+* Btn   2 -> bank B S2
+* 
+* GO btn to start
+*******************************/
+
 #include <Wire.h>
 #include <EVShield.h>
 #include <EVShieldAGS.h>
