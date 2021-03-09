@@ -16,15 +16,17 @@ EVShield evshield(0x34, 0x36);
 // sensors
 EVs_EV3Ultrasonic ultrasonic;
 
-bool isWorking = false;
-
 constexpr long pressDelay = 1000;
 constexpr float triggerDistance = 5; // 5cm
 
+#define klimDelay delay(10)
+constexpr int klimSpeedInc = 1;
+int klimSpeed = 0;
+
 enum {
-	STATE_INIT = 0,
+	STATE_SEARCH = 0,
 	STATE_CLIMB,
-} state = STATE_INIT;
+} state = STATE_SEARCH;
 
 void sendCommandToMotor(int motor, int speed) {
 	evshield.bank_a.motorRunUnlimited(motor,
@@ -52,6 +54,38 @@ void setup() {
 	Serial.println("Init hardware succeeded");
 }
 
+void searchRoutine() {
+	if (ultrasonic.getDist() < triggerDistance) {
+		state = STATE_CLIMB;
+	}
+	Serial.println("Te ver om te klimmen");
+}
+
+void klimRoutine() {
+	if (klimSpeed < 100) { // alleen maar updaten onder 100 snelheid
+		Serial.println("klimspeed verhogen");
+
+		// update klimSpeed
+		klimSpeed = min(klimSpeed+klimSpeedInc, 100);
+
+		// update motor
+		sendCommandToMotor(SH_Motor_Both, klimSpeed);
+
+		// vertraag update
+		klimDelay;
+	}
+}
+
 void loop() {
-	// TODO
+	switch (state) {
+		case STATE_SEARCH:
+			searchRoutine();
+			break;
+		case STATE_CLIMB:
+			klimRoutine();
+			break;
+		default: // zou normaal nooit moeten worden aangeroepen
+			Serial.println("ERROR: Invalid state");
+			break;
+	}
 }
