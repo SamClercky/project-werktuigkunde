@@ -3,8 +3,6 @@
 * Motor 2 -> bank B M2
 * Color 1 -> bank A S1
 * Color 2 -> bank A S2
-* Btn   1 -> bank B S1
-* Btn   2 -> bank B S2
 * 
 * GO btn to start
 *******************************/
@@ -22,22 +20,15 @@
 EVShield evshield(0x34, 0x36);
 
 // sensors
-EVs_NXTTouch touch_sensor1;
-EVs_NXTTouch touch_sensor2;
-
 EVs_EV3Color color_sensor1;
 EVs_EV3Color color_sensor2;
 
 // GLOBALE SETTINGS
-constexpr long pressDelay = 1000;
-constexpr bool colorSensorsActive = true;
 constexpr int baseDuty = 25;
 constexpr int accelDuty = 50;
-constexpr int LIJN = 5;
-constexpr int FINAL = 1;
-
-long lastPressed1 = 0;
-long lastPressed2 = 0;
+int BACKGROUND = 0;
+int LIJN = 5;
+int FINAL = 1;
 
 void sendCommandToMotor(int motor, int speed) {
 	evshield.bank_b.motorRunUnlimited(motor,
@@ -58,6 +49,31 @@ char* getColor(float sensorData) {
 	}
 }
 
+void calibrationRoutine() {
+	int c1;
+	int c2;
+
+	Serial.println("===== Start calibration ======");
+
+	do {
+		// detect color
+		c1 = floor(color_sensor1.getVal());
+		c2 = floor(color_sensor2.getVal());
+
+		BACKGROUND = c1;
+
+		// move away from a possible line
+		sendCommandToMotor(SH_Motor_1, baseDuty);
+		sendCommandToMotor(SH_Motor_2, -baseDuty);
+		delay(200); // wait for acion to complete
+	} while (c1 != c2);
+
+	// background should be identified
+	Serial.print("\nBackground found: ");
+	Serial.println(BACKGROUND);
+	Serial.println("===== End calibration ======");
+}
+
 void setup() {
 	Serial.begin(9600);
 	delay(500);
@@ -66,9 +82,6 @@ void setup() {
 
 	// initialize hardware
 	evshield.init(SH_HardwareI2C);
-
-	touch_sensor1.init(&evshield, SH_BBS1);
-	touch_sensor2.init(&evshield, SH_BBS2);
 
 	color_sensor1.init(&evshield, SH_BAS1);
 	color_sensor1.setMode(MODE_Color_MeasureColor);
@@ -86,63 +99,47 @@ void setup() {
 	Serial.println("Start GO commando om te beginnen");
 	evshield.waitForButtonPress(BTN_GO);
 
-	if (colorSensorsActive) {
-		// start in vooruit
-		sendCommandToMotor(SH_Motor_1, baseDuty);
-		sendCommandToMotor(SH_Motor_2, baseDuty);
-	}
+	// Calibration
+	calibrationRoutine();
+
+	// start in vooruit
+	sendCommandToMotor(SH_Motor_1, baseDuty);
+	sendCommandToMotor(SH_Motor_2, baseDuty);
 }
 
 void loop() {
-	if (colorSensorsActive) {
-		int color1 = color_sensor1.getVal();
-		int color2 = color_sensor2.getVal();
+	int color1 = color_sensor1.getVal();
+	int color2 = color_sensor2.getVal();
 
-		if (color1 == LIJN) {
-			// Start logica
-			sendCommandToMotor(SH_Motor_1, baseDuty - accelDuty);
-			sendCommandToMotor(SH_Motor_2, baseDuty + accelDuty);
-			Serial.println("LIJN 1");
-			delay(300);
-		}
-
-		if (color2 == LIJN) {
-			// Start logica
-			sendCommandToMotor(SH_Motor_1, baseDuty + accelDuty);
-			sendCommandToMotor(SH_Motor_2, baseDuty - accelDuty);
-			Serial.println("LIJN 2");
-			delay(300);
-		}
-
-		if (color1 != LIJN && color2 != LIJN) {
-			// Start logica
-			sendCommandToMotor(SH_Motor_1, baseDuty);
-			sendCommandToMotor(SH_Motor_2, baseDuty);
-			Serial.println("GEEN LIJN");
-		}
-
-		Serial.print("Kleur gedetecteerd: ");
-		Serial.print(getColor(color_sensor1.getVal()));
-		Serial.print(", ");
-		//Serial.print(getColor(color_sensor2.getVal()));
-		Serial.println();
-
-		delay(10);
-	} else {
-		if (touch_sensor1.isPressed() && lastPressed1 < millis()) {
-			Serial.println("Naar voor");
-			sendCommandToMotor(SH_Motor_1, baseDuty);
-			sendCommandToMotor(SH_Motor_2, baseDuty);
-
-			lastPressed1 = millis() + pressDelay;
-		}
-		if (touch_sensor2.isPressed() && lastPressed2 < millis()) {
-			Serial.println("Draaien");
-			sendCommandToMotor(SH_Motor_1, baseDuty);
-			sendCommandToMotor(SH_Motor_2, -baseDuty);
-
-			lastPressed2 = millis() + pressDelay;
-		}
+	if (color1 != BACKGROUND) {
+		// Start logica
+		sendCommandToMotor(SH_Motor_1, baseDuty - accelDuty);
+		sendCommandToMotor(SH_Motor_2, baseDuty + accelDuty);
+		Serial.println("LIJN 1");
+		delay(150);
 	}
+
+	if (color2 != BACKGROUND) {
+		// Start logica
+		sendCommandToMotor(SH_Motor_1, baseDuty + accelDuty);
+		sendCommandToMotor(SH_Motor_2, baseDuty - accelDuty);
+		Serial.println("LIJN 2");
+		delay(150);
+	}
+
+	if (color1 == BACKGROUND && color2 == BACKGROUND) {
+		// Start logica
+		sendCommandToMotor(SH_Motor_1, baseDuty);
+		sendCommandToMotor(SH_Motor_2, baseDuty);
+		Serial.println("GEEN LIJN");
+	}
+
+	Serial.print("Kleur gedetecteerd: ");
+	Serial.print(getColor(color_sensor1.getVal()));
+	Serial.print(", ");
+	//Serial.print(getColor(color_sensor2.getVal()));
+	Serial.println();
+
+	delay(10);
 }
 
