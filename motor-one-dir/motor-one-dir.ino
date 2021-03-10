@@ -41,9 +41,10 @@ void loop() {
 		isWorking = !isWorking;
 
 		if (!isWorking) {
-			sendCommandToMotor(SH_Motor_1, 0); // STOP
+			sendCommandToMotor(SH_Motor_Both, 0); // STOP
 		} else {
-			sendCommandToMotor(SH_Motor_1, 30); // RUN
+			sendCommandToMotor(SH_Motor_1, -100); // RUN
+			sendCommandToMotor(SH_Motor_2, 100); // RUN
 		}
 
 		lastPressed = millis() + pressDelay;
