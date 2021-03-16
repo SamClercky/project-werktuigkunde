@@ -25,7 +25,7 @@ EVs_EV3Color color_sensor2;
 
 // GLOBALE SETTINGS
 constexpr int baseDuty = 25;
-constexpr int accelDuty = 50;
+constexpr int accelDuty = 25;
 int BACKGROUND = 0;
 int LIJN = 5;
 int FINAL = 1;
@@ -113,18 +113,18 @@ void loop() {
 
 	if (color1 != BACKGROUND) {
 		// Start logica
-		sendCommandToMotor(SH_Motor_1, baseDuty - accelDuty);
-		sendCommandToMotor(SH_Motor_2, baseDuty + accelDuty);
+		sendCommandToMotor(SH_Motor_1, -accelDuty);
+		sendCommandToMotor(SH_Motor_2, +accelDuty);
 		Serial.println("LIJN 1");
-		delay(150);
+		delay(50);
 	}
 
 	if (color2 != BACKGROUND) {
 		// Start logica
-		sendCommandToMotor(SH_Motor_1, baseDuty + accelDuty);
-		sendCommandToMotor(SH_Motor_2, baseDuty - accelDuty);
+		sendCommandToMotor(SH_Motor_1, +accelDuty);
+		sendCommandToMotor(SH_Motor_2, -accelDuty);
 		Serial.println("LIJN 2");
-		delay(150);
+		delay(50);
 	}
 
 	if (color1 == BACKGROUND && color2 == BACKGROUND) {
